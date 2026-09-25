@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Calculator</title>
+<meta name="description" content="A fast, modern calculator with standard, scientific, percentage and discount modes, plus saved history and dark mode.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">÷</span>
+      <span class="brand-name">Smart Calculator</span>
+    </div>
+
+    <nav class="main-nav" aria-label="Calculator modes">
+      <button class="nav-link is-active" data-nav="calculator">Calculator</button>
+      <button class="nav-link" data-nav="scientific">Scientific</button>
+      <button class="nav-link" data-nav="percentage">Percentage</button>
+      <button class="nav-link" data-nav="discount">Discount</button>
+      <button class="nav-link" data-nav="history">History</button>
+    </nav>
+
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <span class="theme-icon theme-icon--sun" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--moon" aria-hidden="true">🌙</span>
+    </button>
+  </div>
+</header>
+
+<main class="app">
+
+  <!-- ================= CALCULATOR + SCIENTIFIC ================= -->
+  <section class="panel-row" id="view-calculator" data-view="calculator">
+
+    <div class="calc-card">
+      <div class="calc-card__top">
+        <h1 class="calc-title">Calculator</h1>
+        <div class="mode-switch" role="tablist" aria-label="Calculator type">
+          <button class="mode-pill is-active" data-mode="standard" role="tab" aria-selected="true">Standard</button>
+          <button class="mode-pill" data-mode="scientific" role="tab" aria-selected="false">Scientific</button>
+        </div>
+      </div>
+
+      <div class="display" id="display">
+        <div class="display__expression" id="expression" aria-live="off">&nbsp;</div>
+        <div class="display__result" id="result" aria-live="polite">0</div>
+      </div>
+
+      <div class="error-line" id="errorLine" role="alert"></div>
+
+      <!-- Scientific function row, shown only in scientific mode -->
+      <div class="sci-row" id="sciRow">
+        <button class="key key--sci" data-action="sci" data-fn="sin">sin</button>
+        <button class="key key--sci" data-action="sci" data-fn="cos">cos</button>
+        <button class="key key--sci" data-action="sci" data-fn="tan">tan</button>
+        <button class="key key--sci" data-action="sci" data-fn="log">log</button>
+        <button class="key key--sci" data-action="sci" data-fn="ln">ln</button>
+        <button class="key key--sci" data-action="sqrt">√</button>
+        <button class="key key--sci" data-action="sq">x²</button>
+        <button class="key key--sci" data-action="pow">xʸ</button>
+        <button class="key key--sci" data-action="recip">1/x</button>
+        <button class="key key--sci" data-action="const" data-value="pi">π</button>
+        <button class="key key--sci" data-action="const" data-value="e">e</button>
+        <button class="key key--sci" data-action="paren" data-value="(">(</button>
+        <button class="key key--sci" data-action="paren" data-value=")">)</button>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button class="key key--util" data-action="clear">AC</button>
+        <button class="key key--util" data-action="backspace" aria-label="Delete last digit">⌫</button>
+        <button class="key key--util" data-action="percent">%</button>
+        <button class="key key--op" data-action="operator" data-value="÷" aria-label="Divide">÷</button>
+
+        <button class="key key--num" data-action="number" data-value="7">7</button>
+        <button class="key key--num" data-action="number" data-value="8">8</button>
+        <button class="key key--num" data-action="number" data-value="9">9</button>
+        <button class="key key--op" data-action="operator" data-value="×" aria-label="Multiply">×</button>
+
+        <button class="key key--num" data-action="number" data-value="4">4</button>
+        <button class="key key--num" data-action="number" data-value="5">5</button>
+        <button class="key key--num" data-action="number" data-value="6">6</button>
+        <button class="key key--op" data-action="operator" data-value="−" aria-label="Subtract">−</button>
+
+        <button class="key key--num" data-action="number" data-value="1">1</button>
+        <button class="key key--num" data-action="number" data-value="2">2</button>
+        <button class="key key--num" data-action="number" data-value="3">3</button>
+        <button class="key key--op" data-action="operator" data-value="+" aria-label="Add">+</button>
+
+        <button class="key key--num" data-action="sign" aria-label="Toggle sign">+/−</button>
+        <button class="key key--num" data-action="number" data-value="0">0</button>
+        <button class="key key--num" data-action="decimal">.</button>
+        <button class="key key--equals" data-action="equals" aria-label="Calculate result">=</button>
+      </div>
+    </div>
+
+    <aside class="history-card" id="historyPanelInline">
+      <div class="history-card__head">
+        <h2>Recent</h2>
+        <button class="link-btn" id="clearHistoryInline" type="button">Clear</button>
+      </div>
+      <ul class="history-list" id="historyListInline" aria-live="polite">
+        <li class="history-empty">No calculations yet.</li>
+      </ul>
+    </aside>
+
+  </section>
+
+  <!-- ================= PERCENTAGE ================= -->
+  <section class="panel-row single" id="view-percentage" data-view="percentage" hidden>
+    <div class="tool-card">
+      <h1 class="calc-title">Percentage Calculator</h1>
+      <p class="tool-sub">Four common percentage questions, calculated as you type.</p>
+
+      <div class="tool-grid">
+
+        <form class="tool-block" data-pct="of" novalidate>
+          <h3>What is X% of Y?</h3>
+          <div class="field-row">
+            <label class="field">
+              <span>X (percent)</span>
+              <input type="number" inputmode="decimal" data-input="x" placeholder="e.g. 20">
+            </label>
+            <label class="field">
+              <span>Y (value)</span>
+              <input type="number" inputmode="decimal" data-input="y" placeholder="e.g. 250">
+            </label>
+          </div>
+          <div class="tool-answer" data-answer>Result appears here</div>
+        </form>
+
+        <form class="tool-block" data-pct="isWhatPercent" novalidate>
+          <h3>X is what % of Y?</h3>
+          <div class="field-row">
+            <label class="field">
+              <span>X (part)</span>
+              <input type="number" inputmode="decimal" data-input="x" placeholder="e.g. 45">
+            </label>
+            <label class="field">
+              <span>Y (whole)</span>
+              <input type="number" inputmode="decimal" data-input="y" placeholder="e.g. 180">
+            </label>
+          </div>
+          <div class="tool-answer" data-answer>Result appears here</div>
+        </form>
+
+        <form class="tool-block" data-pct="increase" novalidate>
+          <h3>Percentage increase</h3>
+          <div class="field-row">
+            <label class="field">
+              <span>From</span>
+              <input type="number" inputmode="decimal" data-input="x" placeholder="e.g. 100">
+            </label>
+            <label class="field">
+              <span>To</span>
+              <input type="number" inputmode="decimal" data-input="y" placeholder="e.g. 130">
+            </label>
+          </div>
+          <div class="tool-answer" data-answer>Result appears here</div>
+        </form>
+
+        <form class="tool-block" data-pct="decrease" novalidate>
+          <h3>Percentage decrease</h3>
+          <div class="field-row">
+            <label class="field">
+              <span>From</span>
+              <input type="number" inputmode="decimal" data-input="x" placeholder="e.g. 100">
+            </label>
+            <label class="field">
+              <span>To</span>
+              <input type="number" inputmode="decimal" data-input="y" placeholder="e.g. 70">
+            </label>
+          </div>
+          <div class="tool-answer" data-answer>Result appears here</div>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DISCOUNT ================= -->
+  <section class="panel-row single" id="view-discount" data-view="discount" hidden>
+    <div class="tool-card">
+      <h1 class="calc-title">Discount Calculator</h1>
+      <p class="tool-sub">Enter a price and a discount to see the final price and savings.</p>
+
+      <div class="discount-layout">
+        <form class="tool-block tool-block--wide" id="discountForm" novalidate>
+          <label class="field">
+            <span>Original price</span>
+            <input type="number" inputmode="decimal" id="discOriginal" placeholder="e.g. 10000" min="0">
+          </label>
+          <label class="field">
+            <span>Discount (%)</span>
+            <input type="number" inputmode="decimal" id="discPercent" placeholder="e.g. 30" min="0" max="100">
+          </label>
+        </form>
+
+        <div class="discount-results">
+          <div class="discount-result">
+            <span class="discount-result__label">Final price</span>
+            <span class="discount-result__value" id="discFinal">0.00</span>
+          </div>
+          <div class="discount-result discount-result--accent">
+            <span class="discount-result__label">You saved</span>
+            <span class="discount-result__value" id="discSaved">0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HISTORY (full view) ================= -->
+  <section class="panel-row single" id="view-history" data-view="history" hidden>
+    <div class="tool-card">
+      <div class="history-card__head">
+        <h1 class="calc-title">Calculation History</h1>
+        <button class="link-btn" id="clearHistoryFull" type="button">Clear history</button>
+      </div>
+      <ul class="history-list history-list--full" id="historyListFull" aria-live="polite">
+        <li class="history-empty">No calculations yet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="about" id="about">
+    <div class="about-inner">
+      <h2>About Smart Calculator</h2>
+      <p>Smart Calculator brings four tools into one page: a standard calculator for everyday arithmetic, a scientific mode for trigonometry, logarithms and powers, a percentage tool for quick comparisons, and a discount calculator for working out sale prices. Every result is added to your history automatically, so you can retrace a chain of calculations without redoing the math.</p>
+      <div class="about-grid">
+        <div class="about-item">
+          <h3>Accurate by default</h3>
+          <p>Standard order of operations, decimal-safe math and built-in protection against dividing by zero.</p>
+        </div>
+        <div class="about-item">
+          <h3>Works offline</h3>
+          <p>No sign-in, no server and no tracking. History and theme are stored only in this browser.</p>
+        </div>
+        <div class="about-item">
+          <h3>Keyboard friendly</h3>
+          <p>Type numbers and operators directly, press Enter for the result and Escape to clear.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 Smart Calculator. All rights reserved.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
